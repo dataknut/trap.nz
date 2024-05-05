@@ -1,0 +1,146 @@
+---
+params:
+  dataFile: ""
+  line: ""
+  desc: ""
+title: "Mt Victoria Vermin Trappers Report"
+subtitle: '`r paste0("Trap line: ", params$line)`'
+author: "Ben Anderson"
+date: '`r paste0("Last run: ", Sys.Date())`'
+output: 
+  bookdown::html_document2:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_folding: hide
+  bookdown::pdf_document2:
+    toc: true
+    number_sections: true
+    fig_width: 6
+always_allow_html: true
+urlcolor: blue
+linkcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+
+library(dkUtils) # devtools::install_github("dataknut/dkUtils")
+
+libsToLoad <- c("data.table",
+                "flextable",
+                "ggplot2",
+                "lubridate")
+
+dkUtils::loadLibraries(libsToLoad)
+
+rmdParams <- list()
+
+if(params$dataFile == ""){
+  #notebook mode so params not set via YAML
+  rmdParams$dataFile <- path.expand("~/Dropbox/NZ_2024/trapping/2024-06-06-telford.csv") # not open data
+} else {
+  rmdParams$dataFile <- params$dataFile
+}
+```
+
+```{r loadData}
+
+dt <- data.table::fread(rmdParams$dataFile)
+dt[, date_nz := lubridate::ymd_hm(date, tz = "Pacific/Auckland")]
+dt[, year := lubridate::year(date_nz)]
+dataDate <- file.info(rmdParams$dataFile)[[4]]
+dt[, supp_trap_id := `supp trap id`]
+```
+
+# Introduction
+This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/node/169960) at `r dataDate`.
+
+The **`r params$line`** trap line comprises `r uniqueN(dt$code)` traps made up of the types shown in Table \@ref(tab:trapTypes). This includes `r uniqueN(dt$supp_trap_id)` supplementary traps.
+
+```{r trapTypes}
+t <- dt[, .(N = uniqueN(code)), keyby = .(`trap type`)]
+
+ft <- flextable::flextable(t)
+autofit(set_caption(ft, "Trap types"))
+```
+
+
+# Trap checking frequency
+
+Figure \@ref(fig:checkDates) shows the frequency of records for each trap by month since the start of trapping. Normally we would hope there to be at least 2 checks per month. There are some clear gaps which will affect any subsequent 'trend' analysis.
+
+```{r checkDates, fig.height=6}
+
+dt[, month := floor_date(date_nz, "1 month")]
+
+plotDT <- dt[, .(n = .N), keyby = .(Month = month, code)]
+library(viridisLite)
+ggplot2::ggplot(plotDT, aes(x = Month, y = code, fill = n)) +
+  geom_tile() +
+  scale_fill_viridis_c() +
+      theme(legend.position = "bottom",
+          legend.direction = "horizontal") +
+  labs(fill = "Number of records")
+  
+```
+
+
+# Species caught
+
+The species caught since the beginning of the monitoring dataset (`r min(as.Date(dt$date_nz))`) are shown in Table \@ref(tab:species). Note that this does not (cannot) include any species killed by the A24 traps (or indeed any other traps) which have then been eaten as carrion or otherwise removed before the trap has been re-checked.
+
+In addition the frequency of checking (see Figure \@ref(fig:checkDates)) is likely to affect the frequency of species capture since 'full' traps are unlikely to attract further kills until cleared.
+
+```{r species}
+
+plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`)]
+
+ggplot2::ggplot(plotDT[Species != "None" &
+                         Species != "Unspecified"], aes(x = Species, y = n)) +
+  geom_col() +
+  coord_flip()
+
+```
+
+Figure \@ref(fig:speciesTimeline) shows the frequency of capture of different recorded species over time as frequency per month with additional smoothed fit lines for each species where sufficient data exists. 
+
+This plot appears to be particularly affected by the frequency of checking patterns shown in Figure \@ref(fig:checkDates). However if we compare periods of relatively frequent checking it appears thaty the frequency of rat capture is lower in early 2024 than in (e.g.) early 2020. However it also appears that the frequency of mouse capture has increased.
+
+```{r speciesTimeline}
+plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
+                                    Month = month)]
+
+p <- ggplot2::ggplot(plotDT[Species != "None" &
+                         Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
+  geom_point() +
+  geom_smooth() +
+  labs(y = "N caught per month") +
+      theme(legend.position = "bottom",
+          legend.direction = "horizontal",
+          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(x = "Date")
+
+p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
+
+```
+
+# Seasonal analysis
+
+Do we find a monthly/seasonal pattern?
+
+```{r speciesMonth}
+plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
+                                    Month = lubridate::month(date_nz, label = TRUE))]
+
+ggplot2::ggplot(plotDT[Species != "None" &
+                         Species != "Unspecified"], aes(x = Month, y = n, colour = Species, group = Species)) +
+  geom_point() +
+  geom_smooth() +
+  labs(caption = "All years")
+
+```
+
+# Summary
+
+Goes here
