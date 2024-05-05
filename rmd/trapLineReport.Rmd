@@ -54,6 +54,12 @@ dataDate <- file.info(rmdParams$dataFile)[[4]]
 dt[, supp_trap_id := `supp trap id`]
 ```
 
+# Code
+
+The code used to produce this report is [open source](https://github.com/dataknut/trap.nz) under an [Apache 2.0 license](https://github.com/dataknut/trap.nz?tab=Apache-2.0-1-ov-file#readme). Feel free to contribute. Or fork & go.
+
+\newpage
+
 # Introduction
 This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/node/169960) at `r dataDate`.
 
@@ -145,3 +151,4 @@ ggplot2::ggplot(plotDT[Species != "None" &
 # Summary
 
 Goes here
+
