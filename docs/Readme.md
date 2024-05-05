@@ -1,4 +1,4 @@
 # trap.nz
 Analysis of [Trap.nz](https://trap.nz/) trapping data:
 
- * [Mt Victoria (Wellington) Vermin Trappers](https://trap.nz/node/169960) - [Telford line (html)]("Telford/trapLineReport.html") [(pdf)]("Telford/trapLineReport.pdf")
+ * [Mt Victoria (Wellington) Vermin Trappers](https://trap.nz/node/169960) - [Telford line (html)](Telford/trapLineReport.html) [(pdf)](Telford/trapLineReport.pdf)
