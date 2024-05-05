@@ -5,7 +5,7 @@ params:
   desc: ""
 title: "Mt Victoria Vermin Trappers Report"
 subtitle: '`r paste0("Trap line: ", params$line)`'
-author: "Ben Anderson"
+author: "Report created by: Ben Anderson"
 date: '`r paste0("Last run: ", Sys.Date())`'
 output: 
   bookdown::html_document2:
