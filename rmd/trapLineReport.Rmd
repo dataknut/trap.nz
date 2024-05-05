@@ -24,6 +24,7 @@ linkcolor: blue
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
 
 library(dkUtils) # devtools::install_github("dataknut/dkUtils")
 
@@ -70,7 +71,7 @@ autofit(set_caption(ft, "Trap types"))
 
 Figure \@ref(fig:checkDates) shows the frequency of records for each trap by month since the start of trapping. Normally we would hope there to be at least 2 checks per month. There are some clear gaps which will affect any subsequent 'trend' analysis.
 
-```{r checkDates, fig.height=6}
+```{r checkDates, fig.height=6, fig.cap="Trap checking frequency over time"}
 
 dt[, month := floor_date(date_nz, "1 month")]
 
@@ -88,11 +89,11 @@ ggplot2::ggplot(plotDT, aes(x = Month, y = code, fill = n)) +
 
 # Species caught
 
-The species caught since the beginning of the monitoring dataset (`r min(as.Date(dt$date_nz))`) are shown in Table \@ref(tab:species). Note that this does not (cannot) include any species killed by the A24 traps (or indeed any other traps) which have then been eaten as carrion or otherwise removed before the trap has been re-checked.
+The species caught since the beginning of the monitoring dataset (`r min(as.Date(dt$date_nz))`) are shown in Figure \@ref(fig:species). Note that this does not (cannot) include any species killed by the A24 traps (or indeed any other traps) which have then been eaten as carrion or otherwise removed before the trap has been re-checked.
 
 In addition the frequency of checking (see Figure \@ref(fig:checkDates)) is likely to affect the frequency of species capture since 'full' traps are unlikely to attract further kills until cleared.
 
-```{r species}
+```{r species, fig.cap="Species recorded"}
 
 plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`)]
 
@@ -107,7 +108,7 @@ Figure \@ref(fig:speciesTimeline) shows the frequency of capture of different re
 
 This plot appears to be particularly affected by the frequency of checking patterns shown in Figure \@ref(fig:checkDates). However if we compare periods of relatively frequent checking it appears thaty the frequency of rat capture is lower in early 2024 than in (e.g.) early 2020. However it also appears that the frequency of mouse capture has increased.
 
-```{r speciesTimeline}
+```{r speciesTimeline, fig.cap="Species recorded over time"}
 plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = month)]
 
@@ -129,7 +130,7 @@ p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
 
 Do we find a monthly/seasonal pattern?
 
-```{r speciesMonth}
+```{r speciesMonth, fig.cap="Species recorded by month"}
 plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = lubridate::month(date_nz, label = TRUE))]
 
