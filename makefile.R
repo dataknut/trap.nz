@@ -6,7 +6,7 @@ outputFolder <- here::here("docs")
 
 rmdFolder <- here::here("rmd")
 
-latestDataFile <- path.expand("~/Dropbox/NZ_2024/trapping/2024-06-06-telford.csv") # not open data
+latestDataFile <- path.expand("~/Dropbox/Home/trapping/2024-06-02-telford.csv") # not open data
 
 line <- "Telford"
 desc <- "which covers the northern part of Wellington's Southern Walkway between 
