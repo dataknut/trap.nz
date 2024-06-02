@@ -39,7 +39,7 @@ rmdParams <- list()
 
 if(params$dataFile == ""){
   #notebook mode so params not set via YAML
-  rmdParams$dataFile <- path.expand("~/Dropbox/NZ_2024/trapping/2024-06-06-telford.csv") # not open data
+  rmdParams$dataFile <- path.expand("~/Dropbox/Home/trapping/2024-06-02-telford.csv") # not open data
 } else {
   rmdParams$dataFile <- params$dataFile
 }
@@ -69,7 +69,7 @@ The **`r params$line`** trap line comprises `r uniqueN(dt$code)` traps made up o
 t <- dt[, .(N = uniqueN(code)), keyby = .(`trap type`)]
 
 ft <- flextable::flextable(t)
-autofit(set_caption(ft, "Trap types"))
+autofit(set_caption(ft, caption = "Trap types"))
 ```
 
 
@@ -110,11 +110,11 @@ ggplot2::ggplot(plotDT[Species != "None" &
 
 ```
 
-Figure \@ref(fig:speciesTimeline) shows the frequency of capture of different recorded species over time as frequency per month with additional smoothed fit lines for each species where sufficient data exists. 
+Figure \@ref(fig:speciesTimeline) shows the frequency of capture of different recorded species per month with additional smoothed fit lines for each species where sufficient data exists. 
 
-This plot appears to be particularly affected by the frequency of checking patterns shown in Figure \@ref(fig:checkDates). However if we compare periods of relatively frequent checking it appears thaty the frequency of rat capture is lower in early 2024 than in (e.g.) early 2020. However it also appears that the frequency of mouse capture has increased.
+This plot appears to be particularly affected by the frequency of checking patterns shown in Figure \@ref(fig:checkDates). However if we compare periods of relatively frequent checking it appears that the frequency of rat capture is lower in early 2024 than in (e.g.) early 2020. However it also appears that the frequency of mouse capture has increased.
 
-```{r speciesTimeline, fig.cap="Species recorded over time"}
+```{r speciesTimeline, fig.cap="Frequency of species caught per month"}
 plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = month)]
 
@@ -122,7 +122,7 @@ p <- ggplot2::ggplot(plotDT[Species != "None" &
                          Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
   geom_point() +
   geom_smooth() +
-  labs(y = "N caught per month") +
+  labs(x = "Month", y = "N caught per month") +
       theme(legend.position = "bottom",
           legend.direction = "horizontal",
           axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
