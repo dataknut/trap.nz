@@ -65,11 +65,12 @@ This is a simple report of trapping activity and outcomes for the Mt Victoria Ve
 
 The **`r params$line`** trap line comprises `r uniqueN(dt$code)` traps made up of the types shown in Table \@ref(tab:trapTypes). This includes `r uniqueN(dt$supp_trap_id)` supplementary traps.
 
-```{r trapTypes}
-t <- dt[, .(N = uniqueN(code)), keyby = .(`trap type`)]
+```{r trapTypes, tab.cap="Trap types"}
 
+t <- dt[, .(N = uniqueN(code)), keyby = .(`trap type`)]
 ft <- flextable::flextable(t)
 autofit(set_caption(ft, caption = "Trap types"))
+
 ```
 
 
