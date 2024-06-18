@@ -50,7 +50,7 @@ if(params$dataFile == ""){
 dt <- data.table::fread(rmdParams$dataFile)
 dt[, date_nz := lubridate::ymd_hm(date, tz = "Pacific/Auckland")]
 dt[, year := lubridate::year(date_nz)]
-dataDate <- file.info(rmdParams$dataFile)[[4]]
+dataDate <- file.info(rmdParams$dataFile)$ctime
 dt[, supp_trap_id := `supp trap id`]
 ```
 
@@ -61,7 +61,7 @@ The code used to produce this report is [open source](https://github.com/dataknu
 \newpage
 
 # Introduction
-This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/node/169960) at `r dataDate`.
+This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/view/manage-trap-records/export.csv/169960?eid=87334&token=n6aKP4lCiKUr0T91fXXxvLG3-qmrt3p0ByZlogQU7e8&return-url) at `r dataDate`.
 
 The **`r params$line`** trap line comprises `r uniqueN(dt$code)` traps made up of the types shown in Table \@ref(tab:trapTypes). This includes `r uniqueN(dt$supp_trap_id)` supplementary traps.
 
