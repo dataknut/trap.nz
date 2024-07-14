@@ -48,7 +48,9 @@ if(params$dataFile == ""){
 ```{r loadData}
 
 dt <- data.table::fread(rmdParams$dataFile)
-dt[, date_nz := lubridate::ymd_hm(date, tz = "Pacific/Auckland")]
+dt[, dateTime_nz := lubridate::ymd_hm(date, tz = "Pacific/Auckland")]
+dt[, date_nz := lubridate::as_date(dateTime_nz)]
+
 dt[, year := lubridate::year(date_nz)]
 dataDate <- file.info(rmdParams$dataFile)$ctime
 dt[, supp_trap_id := `supp trap id`]
@@ -88,8 +90,11 @@ ggplot2::ggplot(plotDT, aes(x = Month, y = code, fill = n)) +
   geom_tile() +
   scale_fill_viridis_c() +
       theme(legend.position = "bottom",
-          legend.direction = "horizontal") +
-  labs(fill = "Number of records")
+          legend.direction = "horizontal",
+          axis.text.x = element_text(angle = 90, 
+                                     vjust = 0.5, hjust=1)) +
+  labs(fill = "Number of records") +
+  scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
   
 ```
 
@@ -111,19 +116,56 @@ ggplot2::ggplot(plotDT[Species != "None" &
 
 ```
 
-Figure \@ref(fig:speciesTimeline) shows the frequency of capture of different recorded species per month with additional smoothed fit lines for each species where sufficient data exists. 
+Figure \@ref(fig:speciesRecordedTimeline) shows the frequency of capture of different recorded species per month with additional smoothed fit lines for each species where sufficient data exists. 
 
 This plot appears to be particularly affected by the frequency of checking patterns shown in Figure \@ref(fig:checkDates). However if we compare periods of relatively frequent checking it appears that the frequency of rat capture is lower in early 2024 than in (e.g.) early 2020. However it also appears that the frequency of mouse capture has increased.
 
-```{r speciesTimeline, fig.cap="Frequency of species caught per month"}
+```{r speciesRecordedTimeline, fig.cap="Frequency of species caught per month"}
+# assume that each trap clearance is done on one day (probably not safe)
+dt[, trip := paste0(`recorded by`, "-", date_nz)]
+
 plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = month)]
+setkey(plotDT, Month)
+trips <- dt[, .(nTrips = uniqueN(trip)), keyby = .(Month = month)]
+setkey(trips, Month)
+plotDT <- plotDT[trips]
 
 p <- ggplot2::ggplot(plotDT[Species != "None" &
                          Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
   geom_point() +
   geom_smooth() +
   labs(x = "Month", y = "N caught per month") +
+      theme(legend.position = "bottom",
+          legend.direction = "horizontal") +
+  labs(x = "Date")
+
+p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
+
+```
+
+
+Figure \@ref(fig:speciesRecordedRateTimeline) re-plots this data as a 'rate' by dividing by the number of clearing 'events' (i.e. someone recorded clearing the line) per month and the number of traps checked. This assumes each clearance took one day which is not necessarily true.
+
+Note that this may also produce some strange outliers if a very small number of traps are checked and each have a species recorded.
+
+```{r speciesRecordedRateTimeline, fig.cap="Rate of species caught per month/trap/clearance events"}
+# assume that each trap clearance is done on one day (probably not safe)
+dt[, trip := paste0(`recorded by`, "-", date_nz)]
+
+setkey(plotDT, Month)
+tripsAndTraps <- dt[, .(nTrips = uniqueN(trip),
+                 nTraps = uniqueN(`trap id`)), keyby = .(Month = month)]
+setkey(tripsAndTraps, Month)
+plotDT <- plotDT[tripsAndTraps]
+plotDT[, monthlyCatchRate := n/(nTrips*nTraps)]
+p <- ggplot2::ggplot(plotDT[Species != "None" &
+                         Species != "Unspecified"], aes(x = as.Date(Month), 
+                                                        y = monthlyCatchRate, 
+                                                        colour = Species)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Month", y = "Monthly catch rate") +
       theme(legend.position = "bottom",
           legend.direction = "horizontal",
           axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
@@ -133,16 +175,33 @@ p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
 
 ```
 
+
 # Seasonal analysis
 
-Do we find a monthly/seasonal pattern?
+Do we find a monthly/seasonal pattern? The first plot uses the aggregated frequency rather than the rate.
 
 ```{r speciesMonth, fig.cap="Species recorded by month"}
-plotDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
+monthDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = lubridate::month(date_nz, label = TRUE))]
 
-ggplot2::ggplot(plotDT[Species != "None" &
+ggplot2::ggplot(monthDT[Species != "None" &
                          Species != "Unspecified"], aes(x = Month, y = n, colour = Species, group = Species)) +
+  geom_point() +
+  geom_smooth() +
+  labs(caption = "All years")
+
+```
+
+The second plot (Figure \@fig(fig:speciesRateMonth)) uses the mean of the rate calculated above.
+
+```{r speciesRateMonth, fig.cap="Species recorded by month"}
+monthDT <- plotDT[, .(meanRate = mean(monthlyCatchRate)), keyby = .(Species,
+                                                                    Month = lubridate::month(Month, label = TRUE))]
+
+ggplot2::ggplot(monthDT[Species != "None" &
+                         Species != "Unspecified"], aes(x = Month, 
+                                                        y = meanRate, 
+                                                        colour = Species, group = Species)) +
   geom_point() +
   geom_smooth() +
   labs(caption = "All years")
