@@ -75,7 +75,7 @@ The code used to produce this report is [open source](https://github.com/dataknu
 \newpage
 
 # Introduction
-This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/view/manage-trap-records/export.csv/169960?eid=87334&token=n6aKP4lCiKUr0T91fXXxvLG3-qmrt3p0ByZlogQU7e8&return-url) at `r dataDate`.
+This is a simple report of trapping activity and outcomes for the Mt Victoria Vermin Trappers' **`r params$line`** trap line `r params$desc`. It uses the latest 'complete trapline' records since `r min(as.Date(dt$date_nz))` downloaded from [trap.nz](https://trap.nz/view/manage-trap-records?field_trap_trap_line_target_id_entityreference_filter%5B%5D=190278&field_trap_record_date_value%5Bmin%5D%5Bdate%5D=&field_trap_record_date_value%5Bmax%5D%5Bdate%5D=&field_trap_record_bait_type_tid_entityreference_filter_op=in&field_trap_record_recorded_by_value=&field_tags_tid%5Btextfield%5D=&field_tags_tid%5Bvalue_field%5D=&title=&items_per_page=25) at `r dataDate`.
 
 The **`r params$line`** trap line comprises `r uniqueN(dt$code)` traps made up of the types shown in Table \@ref(tab:trapTypes). This includes `r uniqueN(dt$supp_trap_id)` supplementary traps.
 
@@ -92,7 +92,7 @@ autofit(set_caption(ft, caption = "Trap types"))
 
 Figure \@ref(fig:checkDates) shows the frequency of records for each trap by month since the start of trapping. Normally we would hope there to be at least 2 checks per month. There are some clear gaps which will affect any subsequent 'trend' analysis.
 
-```{r checkDates, fig.height=6, fig.cap="Trap checking frequency over time"}
+```{r checkDates, fig.height=8, fig.cap="Trap checking frequency over time"}
 
 dt[, month := floor_date(date_nz, "1 month")]
 
