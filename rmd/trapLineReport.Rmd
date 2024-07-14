@@ -192,7 +192,7 @@ Do we find a monthly/seasonal pattern? The first plot uses the aggregated freque
 monthDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = lubridate::month(date_nz, label = TRUE))]
 
-p <- ggplot2::ggplot(monthDT[Species != "None" &
+ggplot2::ggplot(monthDT[Species != "None" &
                          Species != "Unspecified"], aes(x = Month, y = n, colour = Species, group = Species)) +
   geom_point() +
   geom_smooth() +
