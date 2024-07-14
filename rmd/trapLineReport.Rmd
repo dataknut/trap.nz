@@ -43,6 +43,18 @@ if(params$dataFile == ""){
 } else {
   rmdParams$dataFile <- params$dataFile
 }
+
+# functions ----
+
+ba_format_x_date_axis <- function(p){
+  # label at 3 months (quarters)
+  p <- p +
+    theme(axis.text.x = element_text(angle = 90, 
+                                     vjust = 0.5, hjust=1)) +
+    scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
+  return(p)
+}
+
 ```
 
 ```{r loadData}
@@ -86,16 +98,14 @@ dt[, month := floor_date(date_nz, "1 month")]
 
 plotDT <- dt[, .(n = .N), keyby = .(Month = month, code)]
 library(viridisLite)
-ggplot2::ggplot(plotDT, aes(x = Month, y = code, fill = n)) +
+p <- ggplot2::ggplot(plotDT, aes(x = Month, y = code, fill = n)) +
   geom_tile() +
   scale_fill_viridis_c() +
       theme(legend.position = "bottom",
-          legend.direction = "horizontal",
-          axis.text.x = element_text(angle = 90, 
-                                     vjust = 0.5, hjust=1)) +
-  labs(fill = "Number of records") +
-  scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
-  
+          legend.direction = "horizontal") +
+  labs(fill = "Number of records")
+
+ba_format_x_date_axis(p)
 ```
 
 
@@ -140,7 +150,7 @@ p <- ggplot2::ggplot(plotDT[Species != "None" &
           legend.direction = "horizontal") +
   labs(x = "Date")
 
-p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
+ba_format_x_date_axis(p)
 
 ```
 
@@ -167,12 +177,10 @@ p <- ggplot2::ggplot(plotDT[Species != "None" &
   geom_smooth() +
   labs(x = "Month", y = "Monthly catch rate") +
       theme(legend.position = "bottom",
-          legend.direction = "horizontal",
-          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+          legend.direction = "horizontal") +
   labs(x = "Date")
 
-p + scale_x_date(date_labels="%b-%Y",date_breaks  ="3 month")
-
+ba_format_x_date_axis(p)
 ```
 
 
@@ -184,7 +192,7 @@ Do we find a monthly/seasonal pattern? The first plot uses the aggregated freque
 monthDT <- dt[, .(n = .N), keyby = .(Species = `species caught`,
                                     Month = lubridate::month(date_nz, label = TRUE))]
 
-ggplot2::ggplot(monthDT[Species != "None" &
+p <- ggplot2::ggplot(monthDT[Species != "None" &
                          Species != "Unspecified"], aes(x = Month, y = n, colour = Species, group = Species)) +
   geom_point() +
   geom_smooth() +
