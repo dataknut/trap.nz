@@ -4,11 +4,14 @@
 
 library(here)
 
+snapshot <- "2024-08-09"
+
 outputFolder <- here::here("docs")
 
 rmdFolder <- here::here("rmd")
 
-latestDataFile <- path.expand("~/Dropbox/Home/trapping/2024-08-09-telford.csv") # not open data
+latestDataFile <- path.expand(sprintf("~/Dropbox/Home/trapping/%s-telford.csv", 
+                                      snapshot)) # not open data
 
 line <- "Telford"
 desc <- "which covers the northern part of Wellington's Southern Walkway between 
