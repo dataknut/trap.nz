@@ -5,7 +5,7 @@
 
 library(here)
 
-snapshot <- "2024-10-24"
+snapshot <- "2024-12-01"
 
 outputFolder <- here::here("docs")
 
