@@ -39,7 +39,7 @@ rmdParams <- list()
 
 if(params$dataFile == ""){
   #notebook mode so params not set via YAML
-  rmdParams$dataFile <- path.expand("~/Dropbox/Home/trapping/2024-06-02-telford.csv") # not open data
+  rmdParams$dataFile <- path.expand("~/Dropbox/Home/trapping/2025-01-26-telford.csv") # not open data
 } else {
   rmdParams$dataFile <- params$dataFile
 }
@@ -142,18 +142,31 @@ setkey(trips, Month)
 plotDT <- plotDT[trips]
 
 p <- ggplot2::ggplot(plotDT[Species != "None" &
-                         Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
+                              Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
   geom_point() +
   geom_smooth() +
   labs(x = "Month", y = "N caught per month") +
       theme(legend.position = "bottom",
           legend.direction = "horizontal") +
-  labs(x = "Date")
+  labs(x = "Month")
 
 ba_format_x_date_axis(p)
 
 ```
 
+Figure \@ref(fig:speciesRecordedTimelineInclNone) repeats this plot but includes the total number of traps recording no species caught per month.
+
+```{r speciesRecordedTimelineInclNone, fig.cap="Frequency of species caught per month - including None"}
+p <- ggplot2::ggplot(plotDT[Species != "Unspecified"], aes(x = as.Date(Month), y = n, colour = Species)) +
+  geom_point() +
+  geom_smooth() +
+  labs(x = "Month", y = "N caught per month (including 'None')") +
+      theme(legend.position = "bottom",
+          legend.direction = "horizontal") +
+  labs(x = "Month")
+
+ba_format_x_date_axis(p)
+```
 
 Figure \@ref(fig:speciesRecordedRateTimeline) re-plots this data as a 'rate' by dividing by the number of clearing 'events' (i.e. someone recorded clearing the line) per month and the number of traps checked. This assumes each clearance took one day which is not necessarily true.
 
